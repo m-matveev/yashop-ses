@@ -131,7 +131,7 @@ class Message extends BaseMessage
         }
         list($address) = array_keys($from);
         $name = $from[$address];
-        $this->from = '"'.$name.'" <'.$address.'>';
+        $this->from = "{$name} <{$address}>";
         $this->getSesMessage()->setFrom($this->from);
 
         return $this;
