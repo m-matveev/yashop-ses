@@ -9,7 +9,7 @@
  * 'components' => [
  *     ...
  *     'mail' => [
- *         'class' => 'yashop\ses\Mailer',
+ *         'class' => 'mamatveev\yii2AmazonSesMailer\Mailer',
  *         'access_key' => 'Your access key',
  *         'secret_key' => 'Your secret key'
  *     ],
@@ -27,12 +27,12 @@
  *     ->send();
  * ~~~
  *
+ * @author Mikhail Matveev <m.matveev114@gmail.com>
  * @author Vitaliy Ofat <ofatv22@gmail.com>
  */
 
-namespace yashop\ses;
+namespace mamatveev\yii2AmazonSesMailer;
 
-use yashop\ses\libs\SimpleEmailService;
 use Yii;
 use yii\mail\BaseMailer;
 
@@ -41,7 +41,7 @@ class Mailer extends BaseMailer
     /**
      * @var string message default class name.
      */
-    public $messageClass = 'yashop\ses\Message';
+    public $messageClass = 'mamatveev\yii2AmazonSesMailer\Message';
 
     /**
      * @var string Amazon ses api access key
@@ -64,17 +64,17 @@ class Mailer extends BaseMailer
     public $host = 'email.us-east-1.amazonaws.com';
 
     /**
-     * @var \yashop\ses\libs\SimpleEmailService SimpleEmailService instance.
+     * @var \SimpleEmailService SimpleEmailService instance.
      */
     private $_ses;
 
     /**
-     * @return \yashop\ses\libs\SimpleEmailService SimpleEmailService instance.
+     * @return \SimpleEmailService SimpleEmailService instance.
      */
     public function getSES()
     {
         if (!is_object($this->_ses)) {
-            $this->_ses = new SimpleEmailService($this->access_key, $this->secret_key, $this->host);
+            $this->_ses = new \SimpleEmailService($this->access_key, $this->secret_key, $this->host);
         }
 
         return $this->_ses;

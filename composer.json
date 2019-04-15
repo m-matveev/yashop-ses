@@ -1,27 +1,22 @@
 {
-    "name": "ofat/yii2-yashop-ses",
+    "name": "mamatveev/yii2-amazon-ses-mailer",
     "description": "Extension for sending emails via amazon ses",
     "type": "yii2-extension",
     "keywords": ["yii2","extension","ses","aws"],
     "license": "MIT",
     "authors": [
         {
-            "name": "Vitaliy Ofat",
-            "email": "ofatv22@gmail.com"
+            "name": "Mikhail Matveev",
+            "email": "m.matveev114@gmail.com"
         }
     ],
     "require": {
-        "yiisoft/yii2": "*"
+        "yiisoft/yii2": "*",
+        "daniel-zahariev/php-aws-ses": "0.8.8"
     },
     "autoload": {
         "psr-4": {
-            "yashop\\ses\\": ""
+            "mamatveev\\yii2AmazonSesMailer\\": ""
         }
-    },
-    "repositories":[
-        {
-            "type": "git",
-            "url": "https://github.com/ofat/yashop-ses"
-        }
-    ]
+    }
 }

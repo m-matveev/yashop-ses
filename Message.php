@@ -1,19 +1,19 @@
 <?php
 
-namespace yashop\ses;
+namespace mamatveev\yii2AmazonSesMailer;
 
 use yii\mail\BaseMessage;
-use yashop\ses\libs\SimpleEmailServiceMessage;
 
 /**
  * Message implements a message class based on Amazon Simple Email Service
  *
+ * @author Mikhail Matveev <m.matveev114@gmail.com>
  * @author Vitaliy Ofat <ofatv22@gmail.com>
  */
 class Message extends BaseMessage
 {
     /**
-     * @var \yashop\ses\libs\SimpleEmailServiceMessage Simple Email Service message instance.
+     * @var \SimpleEmailServiceMessage Simple Email Service message instance.
      */
     private $_sesMessage;
 
@@ -69,7 +69,7 @@ class Message extends BaseMessage
 
     /**
      * In Yii2 dev panel some bug and this method have to return information about result of sending
-     * @return \yashop\ses\Message Message class instance.
+     * @return \mamatveev\yii2AmazonSesMailer\Message Message class instance.
      */
     public function getSwiftMessage()
     {
@@ -77,12 +77,12 @@ class Message extends BaseMessage
     }
 
     /**
-     * @return \yashop\ses\libs\SimpleEmailServiceMessage Simple Email Service message instance.
+     * @return \SimpleEmailServiceMessage Simple Email Service message instance.
      */
     public function getSesMessage()
     {
         if (!is_object($this->_sesMessage)) {
-            $this->_sesMessage = new SimpleEmailServiceMessage();
+            $this->_sesMessage = new \SimpleEmailServiceMessage();
         }
 
         return $this->_sesMessage;
@@ -119,6 +119,7 @@ class Message extends BaseMessage
 
     /**
      * @inheritdoc
+     * @todo name не обязательно и hostname вставлять не надо
      */
     public function setFrom($from, $name = null)
     {
@@ -168,8 +169,15 @@ class Message extends BaseMessage
      */
     public function setTo($to)
     {
-        $this->getSesMessage()->addTo($to);
         $this->to = $to;
+        $sesMessage = $this->getSesMessage();
+        $sesMessage->to = [];
+
+        if (is_array($this->to)) {
+            $sesMessage->addTo(array_flip($this->to));
+        } else {
+            $sesMessage->addTo($this->to);
+        }
 
         return $this;
     }
@@ -275,6 +283,8 @@ class Message extends BaseMessage
     {
         $name = $fileName;
         $mimeType = 'application/octet-stream';
+        $contentId = null;
+        $attachmentType = 'attachment';
 
         if (!empty($options['fileName'])) {
             $name = $options['fileName'];
@@ -282,13 +292,21 @@ class Message extends BaseMessage
         if (!empty($options['contentType'])) {
             $mimeType = $options['contentType'];
         }
-        $this->getSesMessage()->addAttachmentFromFile($name, $fileName, $mimeType);
+        if (!empty($options['contentId'])) {
+            $contentId = $options['contentId'];
+        }
+        if (!empty($options['attachmentType'])) {
+            $attachmentType = $options['attachmentType'];
+        }
+
+        $this->getSesMessage()->addAttachmentFromFile($name, $fileName, $mimeType, $contentId, $attachmentType);
 
         return $this;
     }
 
     /**
      * @inheritdoc
+     * @todo допилить
      */
     public function attachContent($content, array $options = [])
     {
@@ -308,9 +326,22 @@ class Message extends BaseMessage
 
     /**
      * @inheritdoc
+     * @todo допилить
      */
     public function embed($fileName, array $options = [])
     {
+//        $embed = [
+//            'File' => $fileName
+//        ];
+//        if (!empty($options['fileName'])) {
+//            $embed['Name'] = $options['fileName'];
+//        } else {
+//            $embed['Name'] = pathinfo($fileName, PATHINFO_BASENAME);
+//        }
+//        $embed['ContentID'] = 'cid:' . uniqid();
+//        $this->attachments[] = $embed;
+//        return $embed['ContentID'];
+
         return $this->attach($fileName, $options);
     }
 
@@ -319,7 +350,31 @@ class Message extends BaseMessage
      */
     public function embedContent($content, array $options = [])
     {
-        return $this->attachContent($content, $options);
+//        должно быть по идее так
+//        return $this->attachContent($content, $options);
+
+        if (isset($options['fileName']) === false || empty($options['fileName'])) {
+            throw new InvalidParamException('fileName is missing');
+        }
+
+        $contentId = uniqid('attach_', true);
+        $mimeType = 'application/octet-stream';
+        $attachmentType = 'attachment';
+
+        if (!empty($options['contentType'])) {
+            $mimeType = $options['contentType'];
+        }
+
+        if (!empty($options['attachmentType'])) {
+            $attachmentType = $options['attachmentType'];
+        }
+
+        $this->getSesMessage()->addAttachmentFromData($options['fileName'],
+            $content,
+            $mimeType,
+            "<{$contentId}>");
+
+        return $contentId;
     }
 
     /**
