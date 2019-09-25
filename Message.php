@@ -405,8 +405,7 @@ class Message extends BaseMessage
 
     public function setHeader($key, $value)
     {
-        $this->getSesMessage()->addTextHeader($key, $value);
-
+        $this->getSesMessage()->addCustomHeader("{$key}: <{$value}>");
         return $this;
     }
 }
