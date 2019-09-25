@@ -97,7 +97,7 @@ class Mailer extends BaseMailer
             }
             $message->setFrom($this->default_from);
         }
-        $res = $this->getSES()->sendEmail($message->getSesMessage());
+        $res = $this->getSES()->sendEmail($message->getSesMessage(), true);
 
         $message->setDate(time());
 
